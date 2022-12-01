@@ -1,0 +1,10 @@
+class DayX {
+
+    public static void Part1(StreamReader sr) {
+
+    }
+
+    public static void Part2(StreamReader sr) {
+
+    }
+}
