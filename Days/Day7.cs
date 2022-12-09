@@ -83,17 +83,14 @@ class Day7 {
 
         Stack<directory> depth = new Stack<directory>();
         depth.Push(root);
-        bool readMode = false;
         sr.ReadLine();
         for(string line = sr.ReadLine(); line != null; line = sr.ReadLine()) {
             if(line[0] == '$') {
-                readMode = false;
 
                 line = line.Trim();
                 string[] commands = line.Split(" ");
 
                 if(commands[1] == "ls") {
-                    readMode = true;
                     continue;
                 } else if(commands[1] == "cd") {
                     string name = commands[2];
