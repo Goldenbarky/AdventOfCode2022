@@ -179,10 +179,4 @@ class container{
     public List<object> GetList() {
         return items;
     }
-
-    public override bool Equals(object obj)
-    {
-        if(obj is not container) return false;
-        else return ((container) obj).GetList().Equals(items); 
-    }
 }

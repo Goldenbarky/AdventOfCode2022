@@ -36,12 +36,6 @@ class Day14 {
             int x = 500;
             int y = 0;
 
-            while(!map.Contains((x, y))) {
-                y++;
-            }
-
-            y = y-1;
-
             if(!stepDown1(x, y, map, bottom)) {
                 break;
             } else sand++;
@@ -130,12 +124,6 @@ class Day14 {
             int y = 0;
 
             if(map.Contains((x, y))) break;
-
-            while(!map.Contains((x, y))) {
-                y++;
-            }
-
-            y = y-1;
 
             stepDown2(x, y, map, bottom);
                 
