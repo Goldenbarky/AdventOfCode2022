@@ -4,10 +4,10 @@ class Day7 {
     static int currSize = 0;
 
     public static void Part1(StreamReader sr) {
-        directory root = new directory("/");
-        directory currDir = root;
+        Directory root = new Directory("/");
+        Directory currDir = root;
 
-        Stack<directory> depth = new Stack<directory>();
+        Stack<Directory> depth = new Stack<Directory>();
         depth.Push(root);
         sr.ReadLine();
         for(string line = sr.ReadLine(); line != null; line = sr.ReadLine()) {
@@ -28,8 +28,8 @@ class Day7 {
                     }
 
                     foreach(storageObject thing in currDir.files){
-                        if(thing is directory && thing.name == name) {
-                            currDir = (directory) thing;
+                        if(thing is Directory && thing.name == name) {
+                            currDir = (Directory) thing;
                             depth.Push(currDir);
                             continue;
                         }
@@ -39,11 +39,11 @@ class Day7 {
                 string[] info = line.Split(" ");
 
                 if(info[0] == "dir") {
-                    directory newDir = new directory(info[1]);
+                    Directory newDir = new Directory(info[1]);
                     currDir.addObject(newDir);
                     continue;
                 } else {
-                    elfFile newFile = new elfFile(info[1], int.Parse(info[0]));
+                    ElfFile newFile = new ElfFile(info[1], int.Parse(info[0]));
                     currDir.addObject(newFile);
                     continue;
                 }
@@ -55,22 +55,22 @@ class Day7 {
         Console.WriteLine(calcBloat(root, 0));
     }
 
-    public static int sumFiles(directory currDir) {
+    public static int sumFiles(Directory currDir) {
         foreach(storageObject thing in currDir.files) {
-            if(thing is directory) {
-                currDir.size += sumFiles((directory)thing);
+            if(thing is Directory) {
+                currDir.size += sumFiles((Directory)thing);
             }
         }
 
         return currDir.size;
     }
 
-    public static int calcBloat(directory currDir, int currSum) {
+    public static int calcBloat(Directory currDir, int currSum) {
         if(currDir.size <= 100000) currSum += currDir.size;
 
         foreach(storageObject thing in currDir.files) {
-            if(thing is directory) {
-                currSum += calcBloat((directory)thing, 0);
+            if(thing is Directory) {
+                currSum += calcBloat((Directory)thing, 0);
             }
         }
 
@@ -78,10 +78,10 @@ class Day7 {
     }
 
     public static void Part2(StreamReader sr) {
-        directory root = new directory("/");
-        directory currDir = root;
+        Directory root = new Directory("/");
+        Directory currDir = root;
 
-        Stack<directory> depth = new Stack<directory>();
+        Stack<Directory> depth = new Stack<Directory>();
         depth.Push(root);
         sr.ReadLine();
         for(string line = sr.ReadLine(); line != null; line = sr.ReadLine()) {
@@ -102,8 +102,8 @@ class Day7 {
                     }
 
                     foreach(storageObject thing in currDir.files){
-                        if(thing is directory && thing.name == name) {
-                            currDir = (directory) thing;
+                        if(thing is Directory && thing.name == name) {
+                            currDir = (Directory) thing;
                             depth.Push(currDir);
                             continue;
                         }
@@ -113,11 +113,11 @@ class Day7 {
                 string[] info = line.Split(" ");
 
                 if(info[0] == "dir") {
-                    directory newDir = new directory(info[1]);
+                    Directory newDir = new Directory(info[1]);
                     currDir.addObject(newDir);
                     continue;
                 } else {
-                    elfFile newFile = new elfFile(info[1], int.Parse(info[0]));
+                    ElfFile newFile = new ElfFile(info[1], int.Parse(info[0]));
                     currDir.addObject(newFile);
                     continue;
                 }
@@ -128,25 +128,25 @@ class Day7 {
 
         currSize = root.size;
 
-        List<directory> prospects = new List<directory>();
+        List<Directory> prospects = new List<Directory>();
         foldersToDelete(root, prospects);
 
         int smallest = int.MaxValue;
-        foreach(directory dir in prospects) {
+        foreach(Directory dir in prospects) {
             if(dir.size < smallest) smallest = dir.size;
         }
 
         Console.WriteLine(smallest);
     }
 
-    public static void foldersToDelete(directory currDir, List<directory> prospects) {
+    public static void foldersToDelete(Directory currDir, List<Directory> prospects) {
         if(currSize - currDir.size < maxSize) {
             prospects.Add(currDir);
         }
 
         foreach(storageObject thing in currDir.files){
-            if(thing is directory) {
-                foldersToDelete((directory)thing, prospects);
+            if(thing is Directory) {
+                foldersToDelete((Directory)thing, prospects);
             }
         }
     }
@@ -154,17 +154,17 @@ class Day7 {
 }
 
 
-class elfFile : storageObject{
-    public elfFile(string name, int size) : base(name){
+class ElfFile : storageObject{
+    public ElfFile(string name, int size) : base(name){
         this.name = name;
         this.size = size;
     }
 }
 
-class directory : storageObject{
+class Directory : storageObject{
     public List<storageObject> files = new List<storageObject>();
 
-    public directory(string name) : base(name) {
+    public Directory(string name) : base(name) {
         this.name = name;
     }
 

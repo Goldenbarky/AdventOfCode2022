@@ -1,6 +1,6 @@
 class Day9 {
 
-    public enum direction { up, down, left, right }
+    public enum Direction { up, down, left, right }
 
     public static void Part1(StreamReader sr) {
         int[] headPos = new int[2];
@@ -20,13 +20,13 @@ class Day9 {
             string dir = split[0];
             int distance = int.Parse(split[1]);
 
-            direction direction;
+            Direction direction;
 
             switch(dir) {
-                case "R": direction = direction.right; break;
-                case "L": direction = direction.left; break;
-                case "U": direction = direction.up; break;
-                case "D": direction = direction.down; break;
+                case "R": direction = Direction.right; break;
+                case "L": direction = Direction.left; break;
+                case "U": direction = Direction.up; break;
+                case "D": direction = Direction.down; break;
                 default: Console.WriteLine("uh oh"); return;
             }
 
@@ -52,18 +52,18 @@ class Day9 {
         return vertDist <= 1 && horDist <= 1;
     }
 
-    public static int[] moveHead(int[] headPos, direction dir){
+    public static int[] moveHead(int[] headPos, Direction dir){
         switch(dir){
-            case direction.up: 
+            case Direction.up: 
                 headPos[1]++;
                 break;
-            case direction.down:
+            case Direction.down:
                 headPos[1]--;
                 break;
-            case direction.left:
+            case Direction.left:
                 headPos[0]--;
                 break;
-            case direction.right:
+            case Direction.right:
                 headPos[0]++;
                 break;
             }
@@ -115,13 +115,13 @@ class Day9 {
             string dir = split[0];
             int distance = int.Parse(split[1]);
 
-            direction direction;
+            Direction direction;
 
             switch(dir) {
-                case "R": direction = direction.right; break;
-                case "L": direction = direction.left; break;
-                case "U": direction = direction.up; break;
-                case "D": direction = direction.down; break;
+                case "R": direction = Direction.right; break;
+                case "L": direction = Direction.left; break;
+                case "U": direction = Direction.up; break;
+                case "D": direction = Direction.down; break;
                 default: Console.WriteLine("uh oh"); return;
             }
 

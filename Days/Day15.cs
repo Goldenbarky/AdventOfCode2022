@@ -92,18 +92,18 @@ class Day15 {
             beacons.Add(beaconCoords);
         }
 
-        (int, int) distressBeacon = findDistressBeacon(beaconPair, beacons, 20);
+        (int, int) distressBeacon = findDistressBeacon(beaconPair, beacons, 4000000);
 
         Console.WriteLine("(" + distressBeacon.Item1 + ", " + distressBeacon.Item2 + ")");
-        Console.WriteLine(((Int64) 4000000 * distressBeacon.Item1) + distressBeacon.Item2);
     }
 
-    public static PriorityQueue<(int, int), int> sortScannerPriority(int x, int y, List<(int, int)> scanners) {
+    public static PriorityQueue<(int, int), int> sortScannerPriority(int x, int y, List<(int, int)> scanners, Dictionary<(int, int), (int, int)> beaconPair) {
         PriorityQueue<(int, int), int> sortedScanners = new PriorityQueue<(int, int), int>();
 
         foreach((int, int) scanner in scanners) {
             int distance = getManDistance((x, y), scanner);
-            sortedScanners.Enqueue(scanner, distance);
+            int radius = getManDistance(scanner, beaconPair[scanner]);
+            sortedScanners.Enqueue(scanner, distance - radius);
         }
 
         return sortedScanners;
@@ -112,7 +112,7 @@ class Day15 {
     public static (int, int) findDistressBeacon(Dictionary<(int, int), (int, int)> beaconPair, HashSet<(int, int)> beacons, int beaconRange) {
         for(int j = 0; j <= beaconRange; j++) {
             for(int i = 0; i <= beaconRange; i++) {
-                PriorityQueue<(int, int), int> sortedScanners = sortScannerPriority(i, j, beaconPair.Keys.ToList());
+                PriorityQueue<(int, int), int> sortedScanners = sortScannerPriority(i, j, beaconPair.Keys.ToList(), beaconPair);
 
                 bool distressLoc = true;
                 while(sortedScanners.Count > 0 && distressLoc) {
@@ -124,7 +124,7 @@ class Day15 {
                     if(range >= getManDistance((i, j), scanner)) {
                         distressLoc = false;
 
-                        int distanceScanner = Math.Abs(i - scanner.Item1);
+                        int distanceScanner = scanner.Item1 - i;
                         int distanceDiff = Math.Abs(Math.Abs(j - scanner.Item2) - range);
 
                         int iSkip = distanceDiff + distanceScanner;

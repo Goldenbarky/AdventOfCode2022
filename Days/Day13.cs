@@ -1,11 +1,11 @@
 class Day13 {
 
     public static void Part1(StreamReader sr) {
-        List<(container, container)> pairs = new List<(container, container)>();
+        List<(Container, Container)> pairs = new List<(Container, Container)>();
         for(string line = sr.ReadLine(); line != null; line = sr.ReadLine()) {
-            container pair1 = createList(line, 1).Item1;
+            Container pair1 = createList(line, 1).Item1;
             line = sr.ReadLine();
-            container pair2 = createList(line, 1).Item1;
+            Container pair2 = createList(line, 1).Item1;
 
             pairs.Add((pair1, pair2));
             sr.ReadLine(); //throw away newline
@@ -22,15 +22,15 @@ class Day13 {
     }
 
     //returns container and new index
-    public static (container, int) createList(string line, int index) {
-        container list = new container();
+    public static (Container, int) createList(string line, int index) {
+        Container list = new Container();
         while(index < line.Length) {
             string item;
             int endItem = line.IndexOf(',', index);
             if(endItem != -1) item = line.Substring(index, endItem - index);
             else item = line.Substring(index);
             if(item[0] == '[') {
-                container newItem = new container();
+                Container newItem = new Container();
                 (newItem, index) = createList(line, index+1);
                 list.addItem(newItem);
                 if(line[index] == ',') index++;
@@ -60,9 +60,9 @@ class Day13 {
             if((int) left == (int) right) return 0;
             if((int) left < (int) right) return 1;
             else return -1;
-        } else if(left is container && right is container) {
-            container Left = (container) left;
-            container Right = (container) right;
+        } else if(left is Container && right is Container) {
+            Container Left = (Container) left;
+            Container Right = (Container) right;
             for(int i = 0; true; i++) {
                 if(Left.getLength() == Right.getLength()) {
                     if(i >= Left.getLength()) return 0;
@@ -79,12 +79,12 @@ class Day13 {
                 if(val == 0) continue;
                 else return val;
             }
-        } else if(left is container) {
-            container temp = new container();
+        } else if(left is Container) {
+            Container temp = new Container();
             temp.addItem(right);
             return compare(left, temp);
-        } else if(right is container) {
-            container temp = new container();
+        } else if(right is Container) {
+            Container temp = new Container();
             temp.addItem(left);
             return compare(temp, right);
         }
@@ -93,17 +93,17 @@ class Day13 {
     }
 
     public static void Part2(StreamReader sr) {
-        List<container> packets = new List<container>();
+        List<Container> packets = new List<Container>();
 
-        container sub1 = new container();
-        container decoder1 = new container();
+        Container sub1 = new Container();
+        Container decoder1 = new Container();
 
         sub1.addItem(2);
         decoder1.addItem(sub1);
         packets.Add(decoder1);
 
-        container sub2 = new container();
-        container decoder2 = new container();
+        Container sub2 = new Container();
+        Container decoder2 = new Container();
 
         sub2.addItem(6);
         decoder2.addItem(sub2);
@@ -111,18 +111,18 @@ class Day13 {
         
         for(string line = sr.ReadLine(); line != null; line = sr.ReadLine()) {
             if(line == "") continue;
-            container packet = createList(line, 1).Item1;
+            Container packet = createList(line, 1).Item1;
             packets.Add(packet);
             //packets = binarySort(packet, packets);
         }
 
-        packets.Sort(new comparer());
+        packets.Sort(new Comparer());
 
         int score = (packets.IndexOf(decoder1) + 1) * (packets.IndexOf(decoder2) + 1);
         Console.WriteLine(score);
     }
 
-    public static List<container> binarySort(container packet, List<container> packets) {
+    public static List<Container> binarySort(Container packet, List<Container> packets) {
         int window = packets.Count;
         int index = (int) packets.Count / 2;
 
@@ -149,18 +149,18 @@ class Day13 {
     }
 }
 
-class comparer : IComparer<container> {
-    public int Compare(container x, container y)
+class Comparer : IComparer<Container> {
+    public int Compare(Container x, Container y)
     {
         return -Day13.compare(x, y);
         throw new NotImplementedException();
     }
 }
 
-class container{
+class Container{
     List<object> items;
 
-    public container() {
+    public Container() {
         items = new List<object>();
     }
 
