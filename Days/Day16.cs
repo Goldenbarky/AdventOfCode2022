@@ -26,7 +26,7 @@ class Day16 {
         Stack path = new Stack();
         path.Push(rooms["AA"]);
 
-        int best = BruteForce(rooms, new DistanceCounter(), rooms["AA"], 30, 0, 0, 0, path);
+        int best = BruteForce(rooms, new PressureCache(), rooms["AA"], 30, new List<string>());
 
         //(int timeLeft, int flowRate, int pressure) = CalculateOptimal(rooms["AA"], rooms, 30, 0, 0);
 
@@ -62,104 +62,52 @@ class Day16 {
         return (name, flow, connected);
     }
 
-    public static (int, int, int) CalculateOptimal(Room start, Dictionary<string, Room> rooms, int timeLeft, int flowRate, int pressure) {
-        Room current = start;
-        DistanceCounter distanceCounter = new DistanceCounter();
-
-        Queue<Room> optimalPath = SortRooms(current, rooms, distanceCounter);
-
-        if(optimalPath.Count == 0) return (timeLeft, flowRate, pressure);
-        
-        Room next = optimalPath.Dequeue();
-        while(optimalPath.Count > 0) {
-
-            //Move to room
-            int distance = distanceCounter.Distance(current.name, next.name, rooms);
-
-            //If able to get to and open valve
-            if(distance + 1 < timeLeft) {
-                timeLeft -= distance;
-                pressure += flowRate * distance;
-
-                //Open valve
-                timeLeft--;
-                pressure += flowRate;
-                flowRate += next.Open();
-                break;
-            }
-
-            next = optimalPath.Dequeue();
-        }
-
-        (timeLeft, flowRate, pressure) = CalculateOptimal(next, rooms, timeLeft, flowRate, pressure);
-
-        return (timeLeft, flowRate, pressure);
-    }
-
-    public static int BruteForce(Dictionary<string, Room> rooms, DistanceCounter distanceCounter, Room current, int timeLeft, int flowRate, int pressure, int maxPressure, Stack currPath) {
-
+    public static int BruteForce(Dictionary<string, Room> rooms, PressureCache pressureCache, Room current, int timeLeft, List<string> openValves) {
         if(timeLeft <= 0) {
-            if(pressure > maxPressure) {
-                maxPressure = pressure;
-                Console.WriteLine("Best Attempt: " + maxPressure);
-            }
-
-            return pressure;
+            return 0;
         }
 
+        //Check cached
+        string[] openValvesArray = openValves.ToArray();
+        if(pressureCache.bestScores.ContainsKey((openValvesArray, current, timeLeft))) return pressureCache.bestScores[(openValvesArray, current, timeLeft)];
+
+        int score = 0;
         //Open Valve
         if(current.flow > 0 && !current.open) {
             //Choose
             timeLeft--;
-            pressure += flowRate;
-            flowRate += current.Open();
-
-            //Explore
-            maxPressure = Math.Max(BruteForce(rooms, distanceCounter, current, timeLeft, flowRate, pressure, maxPressure, currPath), maxPressure);
-
-            //Unchoose
-            flowRate -= current.Close();
-            pressure -= flowRate;
-            timeLeft++;
+            score = timeLeft * current.Open();
+            openValves.Add(current.name);
         }
 
-        Queue<Room> valves = SortRooms(current, rooms, distanceCounter);
+        Queue<Room> valves = SortRooms(current, rooms, pressureCache);
 
+        int bestScore = 0;
         //Try every other room
         while(valves.Count > 0) {
             Room room = valves.Dequeue();
-            if(room.open) continue;
 
-            int distance = distanceCounter.Distance(current.name, room.name, rooms);
+            int distance = pressureCache.Distance(current.name, room.name, rooms);
 
             if(distance > timeLeft) continue;
 
             //Choose
             timeLeft -= distance;
-            pressure += flowRate * distance;
-            currPath.Push(room);
 
             //Explore
-            maxPressure = Math.Max(BruteForce(rooms, distanceCounter, room, timeLeft, flowRate, pressure, maxPressure, currPath), maxPressure);
+            bestScore = Math.Max(BruteForce(rooms, pressureCache, room, timeLeft, openValves), bestScore);
 
             //Unchoose
-            pressure -= flowRate * distance;
             timeLeft += distance;
-            currPath.Pop();
         }
 
-        if(timeLeft > 0) {
-            pressure += flowRate * timeLeft;
+        score += bestScore;
+        pressureCache.bestScores.Add((openValvesArray, current, timeLeft), bestScore);
 
-            if(pressure > maxPressure) {
-                maxPressure = pressure;
-                Console.WriteLine("Best Attempt: " + maxPressure);
-                currPath.ToArray().Reverse().ToList().ForEach(x => Console.Write(((Room) x).name + ", "));
-                Console.WriteLine();
-            }
-        }
+        //Unchoose
+        current.Close();
 
-        return Math.Max(pressure, maxPressure);
+        return score;
     }
 
     public static List<Room> ConvertQueue(Queue path) {
@@ -173,7 +121,7 @@ class Day16 {
         return queue;
     }
 
-    public static Queue<Room> SortRooms(Room current, Dictionary<string, Room> rooms, DistanceCounter distanceCounter) {
+    public static Queue<Room> SortRooms(Room current, Dictionary<string, Room> rooms, PressureCache distanceCounter) {
         PriorityQueue<Room, double> priorityQueue = new PriorityQueue<Room, double>();
 
         foreach(Room room in rooms.Values) {
@@ -231,11 +179,13 @@ class Room {
     }
 }
 
-class DistanceCounter {
+class PressureCache {
     Dictionary<(string, string), int> distances;
+    public Dictionary<(string[], Room, int), int> bestScores;
 
-    public DistanceCounter() {
+    public PressureCache() {
         distances = new Dictionary<(string, string), int>();
+        bestScores = new Dictionary<(string[], Room, int), int>();
     }
 
     public int Distance(string room1, string room2, Dictionary<string, Room> rooms) {
